@@ -12,7 +12,7 @@ import (
 func FindEntry(ctx context.Context, queryEntry *models.Entry) (models.Entry, error) {
 	db := ctx.Value("db").(*gorm.DB)
 	fmt.Println(*queryEntry)
-	if res := db.Find(&queryEntry, &queryEntry); res.Error != nil {
+	if res := db.Debug().Find(&queryEntry, &queryEntry); res.Error != nil {
 		return *queryEntry, errors.New("Unfound")
 	}
 	queryEntry.Hits = queryEntry.Hits + 1

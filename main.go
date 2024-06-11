@@ -56,7 +56,7 @@ func main() {
 		http.Redirect(w, r, entryToFind.Url, http.StatusPermanentRedirect)
 	})
 
-	router.HandleFunc("POST /shorten/", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("POST /shorten", func(w http.ResponseWriter, r *http.Request) {
 		r = r.WithContext(ctx)
 		shortyReq := ShortyRequest{}
 
@@ -74,6 +74,20 @@ func main() {
 			panic(error)
 		}
 		w.Write([]byte(fmt.Sprintln(newEntry)))
+	})
+
+	router.HandleFunc("GET /all", func(w http.ResponseWriter, r *http.Request) {
+		r = r.WithContext(ctx)
+		db := ctx.Value("db").(*gorm.DB)
+		entries := []models.Entry{}
+		db.Find(&entries)
+		w.Header().Set("Content-Type", "application/json")
+		jsonResponse, err := json.Marshal(entries)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Write(jsonResponse)
 	})
 
 	server := http.Server{
