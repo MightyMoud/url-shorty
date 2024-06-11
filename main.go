@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -69,7 +70,7 @@ func main() {
 		newEntry.Short = shortUrl
 
 		_, error := services.AddEntry(ctx, &newEntry)
-		if error != nil {
+		if errors.Is(error, gorm.ErrDuplicatedKey) {
 			panic(error)
 		}
 		w.Write([]byte(fmt.Sprintln(newEntry)))

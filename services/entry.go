@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/ms-mousa/url-shorty/models"
 	"gorm.io/gorm"
@@ -10,8 +11,8 @@ import (
 
 func FindEntry(ctx context.Context, queryEntry *models.Entry) (models.Entry, error) {
 	db := ctx.Value("db").(*gorm.DB)
-
-	if res := db.First(&queryEntry); res.Error != nil {
+	fmt.Println(*queryEntry)
+	if res := db.Find(&queryEntry, &queryEntry); res.Error != nil {
 		return *queryEntry, errors.New("Unfound")
 	}
 	queryEntry.Hits = queryEntry.Hits + 1
