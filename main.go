@@ -73,20 +73,25 @@ func main() {
 		if errors.Is(error, gorm.ErrDuplicatedKey) {
 			panic(error)
 		}
-		w.Write([]byte(fmt.Sprintln(newEntry)))
+
+		jsonResponse, err := json.Marshal(newEntry)
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(jsonResponse)
 	})
 
 	router.HandleFunc("GET /all", func(w http.ResponseWriter, r *http.Request) {
 		r = r.WithContext(ctx)
-		db := ctx.Value("db").(*gorm.DB)
+
 		entries := []models.Entry{}
-		db.Find(&entries)
-		w.Header().Set("Content-Type", "application/json")
+		services.GetAllEntries(ctx, &entries)
+
 		jsonResponse, err := json.Marshal(entries)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
+		w.Header().Set("Content-Type", "application/json")
 		w.Write(jsonResponse)
 	})
 

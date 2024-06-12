@@ -21,9 +21,10 @@ func FindEntry(ctx context.Context, queryEntry *models.Entry) (models.Entry, err
 func AddEntry(ctx context.Context, destEntry *models.Entry) (models.Entry, error) {
 	db := ctx.Value("db").(*gorm.DB)
 
-	if result := db.Create(&destEntry); result.Error != nil {
+	result := db.Create(&destEntry)
+	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrDuplicatedKey) {
-			if res := db.First(&destEntry); res.Error != nil {
+			if res := db.Find(&destEntry, &destEntry); res.Error != nil {
 				destEntry.Hits = destEntry.Hits + 1
 				db.Save(&destEntry)
 				return *destEntry, nil
@@ -33,4 +34,13 @@ func AddEntry(ctx context.Context, destEntry *models.Entry) (models.Entry, error
 		return *destEntry, errors.New("Something Went Wrong bro~")
 	}
 	return *destEntry, nil
+}
+
+func GetAllEntries(ctx context.Context, destSlice *[]models.Entry) ([]models.Entry, error) {
+	db := ctx.Value("db").(*gorm.DB)
+	if res := db.Find(&destSlice); res.Error != nil {
+		return *destSlice, errors.New("Something went wrong!")
+	}
+	return *destSlice, nil
+
 }
